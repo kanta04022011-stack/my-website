@@ -8,10 +8,91 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-</main>
-<h1>Hello World</h1>
-<button>神奈川</button>
+  <main class="quiz-sheet">
+    <header class="quiz-header">
+      <div class="quiz-meta">
+        <p id="title" class="question-number"></p>
+        <p id="progress" class="progress" aria-live="polite"></p>
+      </div>
+      <h1>問題文</h1>
+      <p id="question" class="question-text"></p>
+    </header>
+
+    <div id="choices" class="choices" role="group" aria-label="答えを選択してください"></div>
+    <p id="result" class="result" aria-live="polite"></p>
+    <button id="next" class="next-button" type="button">
+      次の問題へ <span aria-hidden="true">→</span>
+    </button>
+  </main>
+
   <script>
+    let questions = [];
+    let current = 0;
+
+    async function start() {
+      const response = await fetch("./kanagawa_2026_social_questions.json");
+      if (!response.ok) throw new Error("問題データを読み込めませんでした。");
+
+      const allQuestions = await response.json();
+
+      // 4択がそろい、確認待ちでない問題だけを出題する
+      questions = allQuestions.filter(q =>
+        Array.isArray(q.choices) &&
+        q.choices.length === 4 &&
+        Number.isInteger(q.answer) &&
+        !q.needs_review
+      );
+
+      if (questions.length === 0) {
+        throw new Error("出題できる問題がありません。");
+      }
+
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = questions[current];
+      document.getElementById("progress").textContent =
+        `${current + 1} / ${questions.length}`;
+      document.getElementById("title").textContent =
+        `${q.question_number}（${q.subquestion_number}）`;
+      document.getElementById("question").textContent = q.question;
+      document.getElementById("result").textContent = "";
+
+      const area = document.getElementById("choices");
+      area.replaceChildren();
+
+      q.choices.forEach((choice, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "choice";
+        button.textContent = `${index + 1}. ${choice}`;
+        button.addEventListener("click", () => {
+          const correct = index === q.answer;
+          document.getElementById("result").textContent =
+            correct ? "正解です！" : "不正解です。正解の選択肢を確認しましょう。";
+
+          area.querySelectorAll("button").forEach((choiceButton, choiceIndex) => {
+            choiceButton.disabled = true;
+            if (choiceIndex === q.answer) choiceButton.classList.add("is-correct");
+            if (choiceIndex === index && !correct) choiceButton.classList.add("is-incorrect");
+          });
+        });
+        area.appendChild(button);
+      });
+    }
+
+    document.getElementById("next").addEventListener("click", () => {
+      if (questions.length === 0) return;
+      current = (current + 1) % questions.length;
+      showQuestion();
+    });
+
+    start().catch(error => {
+      document.getElementById("question").textContent = error.message;
+      document.getElementById("choices").replaceChildren();
+      document.getElementById("next").disabled = true;
+    });
   </script>
 </body>
 </html>
