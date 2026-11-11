@@ -14,23 +14,30 @@
         <p id="title" class="question-number"></p>
         <p id="progress" class="progress" aria-live="polite"></p>
       </div>
-      <h1>問題文</h1>
-      <p id="question" class="question-text"></p>
+      <h1>入試一問一答</h1>
+    
     </header>
 
-    <div id="choices" class="choices" role="group" aria-label="答えを選択してください"></div>
-    <p id="result" class="result" aria-live="polite"></p>
-    <button id="next" class="next-button" type="button">
-      次の問題へ <span aria-hidden="true">→</span>
-    </button>
+    <div class="subject-buttons" aria-label="教科を選択">
+      <button class="next-button1 url-button" data-url="https://google.com" type="button">社会</button>
+      <button class="next-button url-button" data-url="" type="button">理科</button>
+    </div>
+    <button class="next-button2" type="button">ログイン</button>
   </main>
 
   <script>
+    document.querySelectorAll(".url-button").forEach(button => {
+      button.addEventListener("click", () => {
+        const url = button.dataset.url;
+        if (url) window.location.href = url;
+      });
+    });
+
     let questions = [];
     let current = 0;
 
     async function start() {
-      const response = await fetch("./kanagawa_2026_social_questions.json");
+      const response = await fetch("./tokyo_2020_social_questions_one_by_one.json");
       if (!response.ok) throw new Error("問題データを読み込めませんでした。");
 
       const allQuestions = await response.json();
@@ -82,17 +89,24 @@
       });
     }
 
-    document.getElementById("next").addEventListener("click", () => {
-      if (questions.length === 0) return;
-      current = (current + 1) % questions.length;
-      showQuestion();
-    });
+    const nextButton = document.getElementById("next");
+    const quizPageIsPresent = ["question", "choices", "result"].every(id =>
+      document.getElementById(id)
+    );
 
-    start().catch(error => {
-      document.getElementById("question").textContent = error.message;
-      document.getElementById("choices").replaceChildren();
-      document.getElementById("next").disabled = true;
-    });
+    if (nextButton && quizPageIsPresent) {
+      nextButton.addEventListener("click", () => {
+        if (questions.length === 0) return;
+        current = (current + 1) % questions.length;
+        showQuestion();
+      });
+
+      start().catch(error => {
+        document.getElementById("question").textContent = error.message;
+        document.getElementById("choices").replaceChildren();
+        nextButton.disabled = true;
+      });
+    }
   </script>
 </body>
 </html>
