@@ -19,7 +19,118 @@
     </header>
 
     <div class="subject-buttons" aria-label="教科を選択">
-      <button class="next-button1 url-button" data-url="https://google.com" type="button">社会</button>
+      <button class="next-button1 url-button" data-url="<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eeeeee">
+  <title>神奈川県 社会 一問一答</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="quiz-sheet">
+    <header class="quiz-header">
+      <div class="quiz-meta">
+        <p id="title" class="question-number"></p>
+        <p id="progress" class="progress" aria-live="polite"></p>
+      </div>
+      <h1>入試一問一答</h1>
+    
+    </header>
+
+    <div class="subject-buttons" aria-label="教科を選択">
+      <button class="next-button1 url-button" data-url="https://my-website.kanta04022011.workers.dev/social/" type="button">社会</button>
+      <button class="next-button url-button" data-url="https://my-website.kanta04022011.workers.dev/science/" type="button">理科</button>
+    </div>
+    <button class="next-button2" type="button">ログイン</button>
+  </main>
+
+  <script>
+    document.querySelectorAll(".url-button").forEach(button => {
+      button.addEventListener("click", () => {
+        const url = button.dataset.url;
+        if (url) window.location.href = url;
+      });
+    });
+
+    let questions = [];
+    let current = 0;
+
+    async function start() {
+      const response = await fetch("./tokyo_2020_social_questions_one_by_one.json");
+      if (!response.ok) throw new Error("問題データを読み込めませんでした。");
+
+      const allQuestions = await response.json();
+
+      // 4択がそろい、確認待ちでない問題だけを出題する
+      questions = allQuestions.filter(q =>
+        Array.isArray(q.choices) &&
+        q.choices.length === 4 &&
+        Number.isInteger(q.answer) &&
+        !q.needs_review
+      );
+
+      if (questions.length === 0) {
+        throw new Error("出題できる問題がありません。");
+      }
+
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = questions[current];
+      document.getElementById("progress").textContent =
+        `${current + 1} / ${questions.length}`;
+      document.getElementById("title").textContent =
+        `${q.question_number}（${q.subquestion_number}）`;
+      document.getElementById("question").textContent = q.question;
+      document.getElementById("result").textContent = "";
+
+      const area = document.getElementById("choices");
+      area.replaceChildren();
+
+      q.choices.forEach((choice, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "choice";
+        button.textContent = `${index + 1}. ${choice}`;
+        button.addEventListener("click", () => {
+          const correct = index === q.answer;
+          document.getElementById("result").textContent =
+            correct ? "正解です！" : "不正解です。正解の選択肢を確認しましょう。";
+
+          area.querySelectorAll("button").forEach((choiceButton, choiceIndex) => {
+            choiceButton.disabled = true;
+            if (choiceIndex === q.answer) choiceButton.classList.add("is-correct");
+            if (choiceIndex === index && !correct) choiceButton.classList.add("is-incorrect");
+          });
+        });
+        area.appendChild(button);
+      });
+    }
+
+    const nextButton = document.getElementById("next");
+    const quizPageIsPresent = ["question", "choices", "result"].every(id =>
+      document.getElementById(id)
+    );
+
+    if (nextButton && quizPageIsPresent) {
+      nextButton.addEventListener("click", () => {
+        if (questions.length === 0) return;
+        current = (current + 1) % questions.length;
+        showQuestion();
+      });
+
+      start().catch(error => {
+        document.getElementById("question").textContent = error.message;
+        document.getElementById("choices").replaceChildren();
+        nextButton.disabled = true;
+      });
+    }
+  </script>
+</body>
+</html>" type="button">社会</button>
       <button class="next-button url-button" data-url="" type="button">理科</button>
     </div>
     <button class="next-button2" type="button">ログイン</button>
