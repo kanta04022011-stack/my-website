@@ -114,7 +114,9 @@ h1 {
 }
 
 .choice:focus-visible,
-.next-button:focus-visible {
+.next-button:focus-visible,
+.next-button1:focus-visible,
+.next-button2:focus-visible {
   outline: 4px solid #79a6ff;
   outline-offset: 4px;
 }
@@ -141,19 +143,42 @@ h1 {
   font-weight: 700;
 }
 
-.next-button {
-  width: min(100%, 620px);
-  min-height: 82px;
-  margin: auto auto 0;
-  padding: 18px 28px;
+.subject-buttons {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  width: min(100%, 420px);
+  margin: 24px auto 0;
+}
+
+.next-button,
+.next-button1,
+.next-button2 {
+  width: 100%;
+  min-height: 72px;
+  margin: 0;
+  padding: 16px 20px;
   border: 0;
   border-radius: 0;
-  background: #2e5bea;
-  color: #fff;
-  font-size: clamp(22px, 3vw, 30px);
+  color: #000;
+  font-size: clamp(20px, 3vw, 28px);
   font-weight: 750;
   cursor: pointer;
   transition: background-color 140ms ease, transform 140ms ease;
+}
+
+.next-button {
+  background: #49ff01;
+}
+
+.next-button1 {
+  background: #ddff01;
+}
+
+.next-button2 {
+  width: min(100%, 420px);
+  margin: 16px auto 0;
+  background: #acacac;
 }
 
 .next-button span {
@@ -162,10 +187,26 @@ h1 {
 }
 
 .next-button:not(:disabled):hover {
-  background: #1947d4;
+  background: #13bd04;
+}
+
+.next-button2:not(:disabled):hover {
+  background: #8e8e8e;
+}
+
+.next-button1:not(:disabled):hover {
+  background: #bcd902;
 }
 
 .next-button:not(:disabled):active {
+  transform: translateY(2px);
+}
+
+.next-button1:not(:disabled):active {
+  transform: translateY(2px);
+}
+
+.next-button2:not(:disabled):active {
   transform: translateY(2px);
 }
 
@@ -177,12 +218,19 @@ h1 {
 @media (max-width: 640px) {
   body {
     padding: 0;
+    min-height: 100svh;
   }
 
   .quiz-sheet {
     min-height: 100vh;
     min-height: 100svh;
-    padding: 24px 22px 28px;
+    padding: 24px 18px calc(24px + env(safe-area-inset-bottom));
+  }
+
+  .subject-buttons {
+    width: min(100%, 380px);
+    gap: 10px;
+    margin-top: 18px;
   }
 
   h1 {
@@ -207,9 +255,18 @@ h1 {
     font-size: 16px;
   }
 
-  .next-button {
-    min-height: 68px;
-    margin-top: 32px;
+  .next-button,
+  .next-button1 {
+    min-height: 60px;
+    padding: 12px 8px;
+    font-size: clamp(17px, 5vw, 22px);
+  }
+
+  .next-button2 {
+    width: min(100%, 380px);
+    min-height: 56px;
+    margin-top: 14px;
+    font-size: clamp(18px, 5vw, 22px);
   }
 }
 
